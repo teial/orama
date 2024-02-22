@@ -10,7 +10,7 @@ pub struct Tensor<T> {
     shape: Vec<usize>,
 }
 
-impl<T: Clone + Zero + One> Tensor<T> {
+impl<T> Tensor<T> {
     /// Create a new tensor from the given data and shape.
     pub fn new<U, S>(data: U, shape: S) -> Self
         where
@@ -27,6 +27,18 @@ impl<T: Clone + Zero + One> Tensor<T> {
         Self { data, shape }
     }
 
+    /// Return a reference to the raw underlying data of the tensor.
+    pub fn data(&self) -> &[T] {
+        &self.data
+    }
+
+    /// Return the shape of the tensor.
+    pub fn shape(&self) -> &[usize] {
+        &self.shape
+    }
+}
+
+impl<T: Clone + Zero + One> Tensor<T> {
     /// Create a new tensor of zeros with the given shape.
     pub fn zeros<S>(shape: S) -> Self
         where
@@ -48,11 +60,6 @@ impl<T: Clone + Zero + One> Tensor<T> {
         let data = vec![T::one(); size];
         Self { data, shape }
     }
-
-    /// Return the shape of the tensor.
-    pub fn shape(&self) -> &[usize] {
-        &self.shape
-    }
 }
 
 #[cfg(test)]
@@ -64,7 +71,7 @@ mod tests {
         let data = vec![1, 2, 3, 4];
         let shape = [2, 2];
         let tensor = Tensor::new(data, shape);
-        assert_eq!(tensor.data, vec![1, 2, 3, 4]);
+        assert_eq!(tensor.data(), vec![1, 2, 3, 4]);
         assert_eq!(tensor.shape(), vec![2, 2]);
     }
 
@@ -72,7 +79,7 @@ mod tests {
     fn test_zeros() {
         let shape = [2, 2];
         let tensor: Tensor<u32> = Tensor::zeros(shape);
-        assert_eq!(tensor.data, vec![0, 0, 0, 0]);
+        assert_eq!(tensor.data(), vec![0, 0, 0, 0]);
         assert_eq!(tensor.shape(), vec![2, 2]);
     }
 
@@ -80,7 +87,7 @@ mod tests {
     fn test_ones() {
         let shape = vec![2, 2];
         let tensor: Tensor<u32> = Tensor::ones(shape);
-        assert_eq!(tensor.data, vec![1, 1, 1, 1]);
+        assert_eq!(tensor.data(), vec![1, 1, 1, 1]);
         assert_eq!(tensor.shape(), vec![2, 2]);
     }
 }
