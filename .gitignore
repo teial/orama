@@ -1,0 +1,7 @@
+# Rust output
+target/
+
+# IDE settings
+.vscode
+.zed
+.idea
