@@ -3,6 +3,7 @@
 
 use num_traits::{One, Zero};
 
+mod cast;
 mod ops;
 #[cfg(feature = "random")]
 mod random;
