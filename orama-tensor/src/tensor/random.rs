@@ -4,13 +4,13 @@ use rand::Rng;
 use rand_distr::{Distribution, StandardNormal};
 use rand_distr::{Normal, Uniform};
 
-use crate::Tensor;
+use super::Tensor;
 
 impl<T> Tensor<T> {
     /// Create a new tensor from the given shape and distribution.
     pub fn from_distribution<D>(shape: Vec<usize>, distribution: D, rng: &mut impl Rng) -> Self
-        where
-            D: Distribution<T>,
+    where
+        D: Distribution<T>,
     {
         let size = shape.iter().product();
         let data: Vec<_> = distribution.sample_iter(rng).take(size).collect();
@@ -21,8 +21,8 @@ impl<T> Tensor<T> {
     /// The low and high parameters are inclusive. If low > high, or if the parameters are
     /// not finite, the method panics.
     pub fn from_uniform(shape: Vec<usize>, low: T, high: T, rng: &mut impl Rng) -> Self
-        where
-            T: rand::distributions::uniform::SampleUniform,
+    where
+        T: rand::distributions::uniform::SampleUniform,
     {
         let distribution =
             Uniform::new_inclusive(low, high).expect("Invalid parameters for uniform distribution");
@@ -31,15 +31,15 @@ impl<T> Tensor<T> {
 }
 
 impl<T> Tensor<T>
-    where
-        StandardNormal: Distribution<T>,
+where
+    StandardNormal: Distribution<T>,
 {
     /// Convenience method for creating a tensor from a normal distribution.
     /// The mean and standard deviation parameters are used to create the distribution.
     /// If the standard deviation is not finite, the method panics.
     pub fn from_normal(shape: Vec<usize>, mean: T, std_dev: T, rng: &mut impl Rng) -> Self
-        where
-            T: num_traits::Float,
+    where
+        T: num_traits::Float,
     {
         let distribution =
             Normal::new(mean, std_dev).expect("Invalid parameters for normal distribution");
