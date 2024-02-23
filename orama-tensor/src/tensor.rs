@@ -3,33 +3,34 @@
 
 use num_traits::{One, Zero};
 
+pub use shape::Shape;
+
 mod cast;
 mod ops;
 #[cfg(feature = "random")]
 mod random;
+mod reshape;
+mod shape;
 
 /// A multi-dimensional array that generalizes vectors and matrices to potentially higher
 /// dimensions.
 #[derive(Debug, PartialEq)]
 pub struct Tensor<T> {
     data: Vec<T>,
-    shape: Vec<usize>,
+    shape: Shape,
 }
 
+// Implementing basic methods for Tensor<T>.
 impl<T> Tensor<T> {
     /// Create a new tensor from the given data and shape.
     pub fn new<U, S>(data: U, shape: S) -> Self
     where
         U: Into<Vec<T>>,
-        S: Into<Vec<usize>>,
+        S: Into<Shape>,
     {
         let data = data.into();
         let shape = shape.into();
-        assert_eq!(
-            data.len(),
-            shape.iter().product(),
-            "Data does not match shape size."
-        );
+        assert_eq!(data.len(), shape.numel(), "Data does not match shape size.");
         Self { data, shape }
     }
 
@@ -40,29 +41,30 @@ impl<T> Tensor<T> {
 
     /// Return the shape of the tensor.
     pub fn shape(&self) -> &[usize] {
-        &self.shape
+        self.shape.dims()
     }
 }
 
+// Implementing constructors for Tensor<T>.
 impl<T: Clone + Zero + One> Tensor<T> {
     /// Create a new tensor of zeros with the given shape.
     pub fn zeros<S>(shape: S) -> Self
     where
-        S: Into<Vec<usize>>,
+        S: Into<Shape>,
     {
         let shape = shape.into();
-        let size = shape.iter().product();
-        let data = vec![T::zero(); size];
+        let numel = shape.numel();
+        let data = vec![T::zero(); numel];
         Self { data, shape }
     }
 
     /// Create a new tensor of ones with the given shape.
     pub fn ones<S>(shape: S) -> Self
     where
-        S: Into<Vec<usize>>,
+        S: Into<Shape>,
     {
         let shape = shape.into();
-        let size = shape.iter().product();
+        let size = shape.numel();
         let data = vec![T::one(); size];
         Self { data, shape }
     }
