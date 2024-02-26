@@ -1,6 +1,9 @@
 # Rust output
 target/
 
+# Libararies don't commi lock
+Cargo.lock
+
 # IDE settings
 .vscode
 .zed
