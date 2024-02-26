@@ -1,18 +1,16 @@
-//! This module contains the `Tensor` struct, which is a multi-dimensional array that generalizes
-//! vectors and matrices to potentially higher dimensions.
-
 use num_traits::{One, Zero};
 
-pub use shape::Shape;
+use crate::index::Entry;
+
+use super::{Index, Shape, View};
 
 mod cast;
 mod ops;
 #[cfg(feature = "random")]
 mod random;
 mod reshape;
-mod shape;
 
-/// A multi-dimensional array that generalizes vectors and matrices to potentially higher
+/// A tensor is multi-dimensional array that generalizes vectors and matrices to potentially higher
 /// dimensions.
 #[derive(Debug, PartialEq)]
 pub struct Tensor<T> {
@@ -20,7 +18,7 @@ pub struct Tensor<T> {
     shape: Shape,
 }
 
-// Implementing basic methods for Tensor<T>.
+// Implementing basic ctor for tensor.
 impl<T> Tensor<T> {
     /// Create a new tensor from the given data and shape.
     pub fn new<U, S>(data: U, shape: S) -> Self
@@ -33,21 +31,45 @@ impl<T> Tensor<T> {
         assert_eq!(data.len(), shape.numel(), "Data does not match shape size.");
         Self { data, shape }
     }
+}
 
-    /// Return a reference to the raw underlying data of the tensor.
+impl<T: Clone> Tensor<T> {
+    /// Create a new tensor from the given data and shape.
+    pub fn from_scalar<S>(scalar: T, shape: S) -> Self
+    where
+        S: Into<Shape>,
+    {
+        let shape = shape.into();
+        Self::new(vec![scalar], shape)
+    }
+}
+
+/// Implementing basic accessors for tensor.
+impl<T> Tensor<T> {
+    /// Return a reference to the raw underlying data of this tensor.
     pub fn data(&self) -> &[T] {
         &self.data
     }
 
-    /// Return the shape of the tensor.
+    /// Return the shape of this tensor.
     pub fn shape(&self) -> &[usize] {
         self.shape.dims()
     }
+
+    /// Return the number of elements in this tensor.
+    pub fn numel(&self) -> usize {
+        self.shape.numel()
+    }
+
+    /// Return a view of this tensor.
+    pub fn view(&self) -> View<'_, T> {
+        View::new(self.data(), self.shape())
+    }
 }
 
-// Implementing constructors for Tensor<T>.
+// Implementing numeric constructors for tensor.
 impl<T: Clone + Zero + One> Tensor<T> {
-    /// Create a new tensor of zeros with the given shape.
+    /// Create a new tensor with the given shape and fill it with zeros.
     pub fn zeros<S>(shape: S) -> Self
     where
         S: Into<Shape>,
@@ -58,7 +80,7 @@ impl<T: Clone + Zero + One> Tensor<T> {
         Self { data, shape }
     }
 
-    /// Create a new tensor of ones with the given shape.
+    /// Create a new tensor with the given shape and fill it with ones.
     pub fn ones<S>(shape: S) -> Self
     where
         S: Into<Shape>,
@@ -67,6 +89,13 @@ impl<T: Clone + Zero + One> Tensor<T> {
         let size = shape.numel();
         let data = vec![T::one(); size];
         Self { data, shape }
+    }
+}
+
+impl<T: Clone> Index for Tensor<T> {
+    type Output<'a> = Entry<T, View<'a, T>> where T: 'a;
+    fn index(&self, index: usize) -> Entry<T, View<'_, T>> {
+        self.view().index(index)
     }
 }
 

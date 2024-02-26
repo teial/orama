@@ -1,4 +1,5 @@
-use super::{Shape, Tensor};
+use super::Shape;
+use super::Tensor;
 
 struct Spec(Vec<usize>);
 
@@ -27,10 +28,9 @@ impl Spec {
     }
 }
 
-// Implementing reshaping methods for Tensor<T>.
 impl<T> Tensor<T> {
     pub fn reshape(mut self, new_shape: impl Into<Vec<usize>>) -> Result<Self, String> {
-        let new_shape = Spec::from(new_shape).into_shape(self.data.len())?;
+        let new_shape = Spec::from(new_shape).into_shape(self.numel())?;
         self.shape = new_shape;
         Ok(self)
     }

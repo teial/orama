@@ -3,14 +3,14 @@
 use super::Tensor;
 
 impl<T> Tensor<T> {
-    /// Cast the tensor to a new type.
+    /// Cast the raw to a new type.
     pub fn cast<U: From<T>>(self) -> Tensor<U> {
         Tensor::new(
             self.data
                 .into_iter()
                 .map(|x| U::from(x))
                 .collect::<Vec<_>>(),
-            self.shape.clone(),
+            self.shape,
         )
     }
 }

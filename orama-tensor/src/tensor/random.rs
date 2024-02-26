@@ -7,7 +7,7 @@ use rand_distr::{Normal, Uniform};
 use super::Tensor;
 
 impl<T> Tensor<T> {
-    /// Create a new tensor from the given shape and distribution.
+    /// Create a new raw from the given shape and distribution.
     pub fn from_distribution<D>(shape: Vec<usize>, distribution: D, rng: &mut impl Rng) -> Self
     where
         D: Distribution<T>,
@@ -17,7 +17,7 @@ impl<T> Tensor<T> {
         Self::new(data, shape)
     }
 
-    /// Convenience method for creating a tensor from a uniform distribution.
+    /// Convenience method for creating a raw from a uniform distribution.
     /// The low and high parameters are inclusive. If low > high, or if the parameters are
     /// not finite, the method panics.
     pub fn from_uniform(shape: Vec<usize>, low: T, high: T, rng: &mut impl Rng) -> Self
@@ -34,7 +34,7 @@ impl<T> Tensor<T>
 where
     StandardNormal: Distribution<T>,
 {
-    /// Convenience method for creating a tensor from a normal distribution.
+    /// Convenience method for creating a raw from a normal distribution.
     /// The mean and standard deviation parameters are used to create the distribution.
     /// If the standard deviation is not finite, the method panics.
     pub fn from_normal(shape: Vec<usize>, mean: T, std_dev: T, rng: &mut impl Rng) -> Self
@@ -46,7 +46,7 @@ where
         Self::from_distribution(shape, distribution, rng)
     }
 
-    /// Convenience method for creating a tensor from a standard normal distribution.
+    /// Convenience method for creating a raw from a standard normal distribution.
     pub fn from_standard_normal(shape: Vec<usize>, rng: &mut impl Rng) -> Self {
         let distribution = StandardNormal;
         Self::from_distribution(shape, distribution, rng)
